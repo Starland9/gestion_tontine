@@ -3,29 +3,11 @@ import 'package:gestion_tontine/models/user/user.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../models/cotisation/cotisation.dart';
-import '../user/user_list_page.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
-  Hive.registerAdapter(CotisationAdapter()); // Register the adapter
-
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: CreateCotisationPage(),
-    );
-  }
-}
 
 class CreateCotisationPage extends StatefulWidget {
-  const CreateCotisationPage({super.key});
+  const CreateCotisationPage({super.key, required this.user});
+
+  final User user;
 
   @override
   State<CreateCotisationPage> createState() => _CreateCotisationPageState();
@@ -34,7 +16,13 @@ class CreateCotisationPage extends StatefulWidget {
 class _CreateCotisationPageState extends State<CreateCotisationPage> {
   final _currentAmountController = TextEditingController();
   final _targetAmountController = TextEditingController();
-  User? _user;
+  late User _user;
+
+  @override
+  void initState() {
+    _user = widget.user;
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -47,17 +35,12 @@ class _CreateCotisationPageState extends State<CreateCotisationPage> {
     final currentAmount = double.parse(_currentAmountController.text);
     final targetAmount = double.parse(_targetAmountController.text);
 
-    // Validate input
-    if (_user == null) {
-      return;
-    }
-
     // Create Cotisation object
 
     final cotisation = Cotisation(
       currentAmount: currentAmount,
       targetAmount: targetAmount,
-      user: _user!,
+      user: _user,
     );
 
     // Save cotisation to Hive box
@@ -68,8 +51,8 @@ class _CreateCotisationPageState extends State<CreateCotisationPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Cotisation Created'),
-        content: const Text('Cotisation successfully created.'),
+        title: const Text('Cotisation cree'),
+        content: const Text(' La cotisation a bien ete cree'),
         actions: [
           TextButton(
             onPressed: () {
@@ -85,14 +68,13 @@ class _CreateCotisationPageState extends State<CreateCotisationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Creer la cotisation'),
-      ),
-      body: Padding(
+    return AlertDialog(
+      title: const Text('Creer la cotisation'),
+      content: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: _currentAmountController,
@@ -110,24 +92,24 @@ class _CreateCotisationPageState extends State<CreateCotisationPage> {
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16.0),
-            DropdownButtonFormField<User>(
-              value: _user,
-              onChanged: (value) {
-                setState(() {
-                  _user = value;
-                });
-              },
-              decoration: const InputDecoration(
-                labelText: 'Utilisateur',
-              ),
-              items: Hive.box<User>('users').values.map((user) {
-                return DropdownMenuItem<User>(
-                  value: user,
-                  child: Text(user.firstName),
-                );
-              }).toList(),
-            ),
-            if (_user != null) Text(_user!.firstName),
+            // DropdownButtonFormField<User>(
+            //   value: _user,
+            //   onChanged: (value) {
+            //     setState(() {
+            //       _user = value;
+            //     });
+            //   },
+            //   decoration: const InputDecoration(
+            //     labelText: 'Utilisateur',
+            //   ),
+            //   items: Hive.box<User>('users').values.map((user) {
+            //     return DropdownMenuItem<User>(
+            //       value: user,
+            //       child: Text(user.firstName),
+            //     );
+            //   }).toList(),
+            // ),
+            Text(_user.fullName),
             const SizedBox(height: 32.0),
             ElevatedButton(
               onPressed: _createCotisation,
@@ -139,15 +121,15 @@ class _CreateCotisationPageState extends State<CreateCotisationPage> {
     );
   }
 
-  void _selectUser() async {
-    List<User>? selectedUsers = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const UserListPage()),
-    );
-    if (selectedUsers != null) {
-      setState(() {
-        _user = selectedUsers.first;
-      });
-    }
-  }
+  // void _selectUser() async {
+  //   List<User>? selectedUsers = await Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (context) => const UserListPage()),
+  //   );
+  //   if (selectedUsers != null) {
+  //     setState(() {
+  //       _user = selectedUsers.first;
+  //     });
+  //   }
+  // }
 }

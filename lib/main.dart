@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_tontine/screens/auth/login/login_screen.dart';
+import 'package:gestion_tontine/screens/home/landing_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'models/account/account.dart';
@@ -43,7 +43,18 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      // home: HomePage(
+      //   user: User(
+      //     firstName: "Landry",
+      //     lastName: "Simo",
+      //     email: "landrysimo99@gmail.com",
+      //     password: "stilll2003",
+      //     isAdmin: true,
+      //     profession: "Developpeur",
+      //     birthDate: DateTime(2003, 11, 4),
+      //   ),
+      // ),
+      home: LandingPage(),
     );
   }
 }

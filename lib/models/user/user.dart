@@ -19,11 +19,33 @@ class User extends HiveObject {
   @HiveField(5)
   bool isAdmin;
 
+  @HiveField(6)
+  String? imagePath;
+
+  @HiveField(7)
+  String profession;
+
+  @HiveField(8)
+  DateTime birthDate;
+
+  @HiveField(9)
+  double amount;
+
+  String get fullName {
+    return "$firstName $lastName";
+  }
+
+  String get initiales =>
+      fullName.split(' ').map((e) => e[0]).take(2).join().toUpperCase();
+
   User({
     required this.firstName,
     required this.lastName,
     required this.email,
     required this.password,
     required this.isAdmin,
+    required this.profession,
+    required this.birthDate,
+    this.amount = 0.0,
   });
 }

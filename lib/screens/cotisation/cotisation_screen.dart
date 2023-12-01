@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_tontine/models/cotisation/cotisation.dart';
+import 'package:gestion_tontine/models/user/user.dart';
 import 'package:gestion_tontine/screens/cotisation/create_cotisation_screen.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class CotisationPage extends StatelessWidget {
-  const CotisationPage({super.key});
+  const CotisationPage({super.key, required this.user});
+
+  final User user;
 
   @override
   Widget build(BuildContext context) {
@@ -12,12 +15,22 @@ class CotisationPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cotisations'),
+        title: const Text('Mes Cotisations'),
       ),
       body: ValueListenableBuilder<Box<Cotisation>>(
         valueListenable: box.listenable(),
         builder: (context, box, _) {
-          final cotisations = box.values.toList();
+          final cotisations = box.values
+              .toList()
+              .reversed
+              .where((element) => element.user == user)
+              .toList();
+
+          if (cotisations.isEmpty) {
+            return const Center(
+              child: Text('Aucune cotisation'),
+            );
+          }
 
           return ListView.builder(
             itemCount: cotisations.length,
@@ -47,7 +60,9 @@ class CotisationPage extends StatelessWidget {
         onPressed: () {
           showDialog(
             context: context,
-            builder: (context) => const CreateCotisationPage(),
+            builder: (context) => CreateCotisationPage(
+              user: user,
+            ),
           );
         },
       ),

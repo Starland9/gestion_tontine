@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_tontine/models/reunion/reunion.dart';
+import 'package:gestion_tontine/models/user/user.dart';
 import 'package:gestion_tontine/screens/reunion/reunion_create_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class MeetingListPage extends StatefulWidget {
-  const MeetingListPage({super.key});
+  const MeetingListPage({super.key, required this.user});
+
+  final User user;
 
   @override
   State<MeetingListPage> createState() => _MeetingListPageState();
@@ -19,7 +22,14 @@ class _MeetingListPageState extends State<MeetingListPage> {
   void initState() {
     super.initState();
     meetingList = Hive.box<Reunion>('reunions').values.toList();
+
+    if (!widget.user.isAdmin) {
+      meetingList = meetingList
+          .where((meeting) => meeting.participants.contains(widget.user))
+          .toList();
+    }
     filteredMeetingList = meetingList;
+    super.initState();
   }
 
   void _searchMeeting(String query) {
@@ -47,7 +57,9 @@ class _MeetingListPageState extends State<MeetingListPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Reunions'),
+        title: widget.user.isAdmin
+            ? const Text('Gestion des reunions')
+            : const Text("Mes reunions"),
       ),
       body: Column(
         children: [
@@ -77,12 +89,14 @@ class _MeetingListPageState extends State<MeetingListPage> {
                             ? const Icon(Icons.check_circle, color: Colors.blue)
                             : const Icon(Icons.circle_outlined),
                         onTap: () => _toggleMeetingSelection(meeting),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () {
-                            box.deleteAt(index);
-                          },
-                        ),
+                        trailing: widget.user.isAdmin
+                            ? IconButton(
+                                icon: const Icon(Icons.delete),
+                                onPressed: () {
+                                  box.deleteAt(index);
+                                },
+                              )
+                            : null,
                       );
                     },
                   ),
@@ -90,11 +104,13 @@ class _MeetingListPageState extends State<MeetingListPage> {
               })
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addReunion,
-        tooltip: 'Ajouter une Reunion',
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: widget.user.isAdmin
+          ? FloatingActionButton(
+              onPressed: _addReunion,
+              tooltip: 'Ajouter une Reunion',
+              child: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_tontine/models/notification/notification.dart' as app;
+import 'package:gestion_tontine/models/user/user.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'create_notification_page.dart';
 
 class NotificationPage extends StatelessWidget {
-  const NotificationPage({super.key});
+  const NotificationPage({super.key, required this.user});
+
+  final User user;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +29,7 @@ class NotificationPage extends StatelessWidget {
               final notification = notifications[index];
               return ListTile(
                 leading: const Icon(
-                  Icons.attach_money,
+                  Icons.notifications,
                   color: Colors.blue,
                 ),
                 title: Text(notification.title),
@@ -42,15 +45,17 @@ class NotificationPage extends StatelessWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) => const CreateNotificationPage(),
-          );
-        },
-      ),
+      floatingActionButton: user.isAdmin
+          ? FloatingActionButton(
+              child: const Icon(Icons.add),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => const CreateNotificationPage(),
+                );
+              },
+            )
+          : null,
     );
   }
 }

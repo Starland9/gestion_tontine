@@ -1,4 +1,5 @@
 import 'package:gestion_tontine/models/reunion/reunion.dart';
+import 'package:gestion_tontine/models/user/user.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 part 'operation.g.dart';
@@ -21,7 +22,7 @@ class Operation extends HiveObject {
   String description;
 
   @HiveField(6)
-  Reunion reunion;
+  User user;
 
   Operation({
     required this.number,
@@ -29,6 +30,6 @@ class Operation extends HiveObject {
     required this.amount,
     required this.type,
     required this.description,
-    required this.reunion,
+    required this.user,
   });
 }

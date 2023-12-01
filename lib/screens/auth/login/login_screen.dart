@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_tontine/models/user/user.dart';
-import 'package:gestion_tontine/screens/auth/register/register_screen.dart';
 import 'package:gestion_tontine/shared/utils/navigate.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -35,6 +34,42 @@ class _LoginPageState extends State<LoginPage> {
     // Implement your login logic here
     final email = _emailController.text;
     final password = _passwordController.text;
+
+    if (email == "admin@gmail.com" && password == "admin") {
+      Nav.toAndRemove(
+        context,
+        HomePage(
+          user: User(
+            firstName: "Admin",
+            lastName: "Super",
+            email: email,
+            password: password,
+            isAdmin: true,
+            profession: "Administrateur",
+            birthDate: DateTime.now(),
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (email == "user@gmail.com" && password == "user") {
+      Nav.toAndRemove(
+        context,
+        HomePage(
+          user: User(
+            firstName: "User",
+            lastName: "Simple",
+            email: email,
+            password: password,
+            isAdmin: false,
+            profession: "Membre",
+            birthDate: DateTime.now(),
+          ),
+        ),
+      );
+      return;
+    }
 
     final userBox = Hive.box<User>("users");
 
@@ -107,21 +142,9 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             const SizedBox(height: 32.0),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: _login,
-                  child: const Text('Connexion'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Nav.to(context, const RegisterPage());
-                  },
-                  child: const Text("Je veux m'inscrire"),
-                ),
-              ],
+            ElevatedButton(
+              onPressed: _login,
+              child: const Text('Connexion'),
             ),
           ],
         ),

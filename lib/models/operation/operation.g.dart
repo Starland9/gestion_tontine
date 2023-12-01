@@ -22,7 +22,7 @@ class OperationAdapter extends TypeAdapter<Operation> {
       amount: fields[3] as double,
       type: fields[4] as String,
       description: fields[5] as String,
-      reunion: fields[6] as Reunion,
+      user: fields[6] as User,
     );
   }
 
@@ -41,7 +41,7 @@ class OperationAdapter extends TypeAdapter<Operation> {
       ..writeByte(5)
       ..write(obj.description)
       ..writeByte(6)
-      ..write(obj.reunion);
+      ..write(obj.user);
   }
 
   @override

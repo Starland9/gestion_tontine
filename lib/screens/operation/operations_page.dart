@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_tontine/models/operation/operation.dart';
-import 'package:gestion_tontine/screens/operation/operation_create_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:intl/intl.dart';
 
 class OperationsPage extends StatefulWidget {
   const OperationsPage({super.key});
@@ -24,7 +24,7 @@ class _OperationsPageState extends State<OperationsPage> {
 
   void _searchMeeting(String query) {
     setState(() {
-      filteredMeetingList = meetingList
+      filteredMeetingList = meetingList.reversed
           .where((meeting) =>
               meeting.type.toLowerCase().contains(query.toLowerCase()))
           .toList();
@@ -44,18 +44,13 @@ class _OperationsPageState extends State<OperationsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Operations'),
-      ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              onChanged: _searchMeeting,
-              decoration: const InputDecoration(
-                labelText: 'Rechercher une operation',
-              ),
+          const SizedBox(height: 16),
+          const Text(
+            "Historique des Transactions",
+            style: TextStyle(
+              fontSize: 20,
             ),
           ),
           Expanded(
@@ -66,11 +61,18 @@ class _OperationsPageState extends State<OperationsPage> {
                 final isSelected = selectedMeetings.contains(meeting);
 
                 return ListTile(
-                  title: Text(meeting.type),
-                  subtitle: Text(meeting.date.toString()),
-                  leading: isSelected
-                      ? const Icon(Icons.check_circle, color: Colors.blue)
-                      : const Icon(Icons.circle_outlined),
+                  title: Text(
+                      "${meeting.type.toUpperCase()} de ${meeting.amount} FCFA"),
+                  subtitle: Text(DateFormat('dd/MM/yyyy').format(meeting.date)),
+                  leading: meeting.type == "depot"
+                      ? const Icon(
+                          Icons.add,
+                          color: Colors.green,
+                        )
+                      : const Icon(
+                          Icons.remove,
+                          color: Colors.red,
+                        ),
                   onTap: () => _toggleMeetingSelection(meeting),
                 );
               },
@@ -78,18 +80,6 @@ class _OperationsPageState extends State<OperationsPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addReunion,
-        tooltip: 'effectuer une operation',
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
-
-  void _addReunion() {
-    showDialog(
-      context: context,
-      builder: (context) => const AddOperationDialog(),
     );
   }
 }

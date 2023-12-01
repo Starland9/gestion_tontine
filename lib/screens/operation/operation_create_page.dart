@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_tontine/models/operation/operation.dart';
-import 'package:gestion_tontine/models/reunion/reunion.dart';
+import 'package:gestion_tontine/models/user/user.dart';
 import 'package:hive/hive.dart';
 
 class AddOperationDialog extends StatefulWidget {
-  const AddOperationDialog({super.key});
+  const AddOperationDialog(
+      {super.key, this.deposit = true, required this.user});
+
+  final bool deposit;
+  final User user;
 
   @override
   State<AddOperationDialog> createState() => _AddOperationDialogState();
@@ -32,20 +36,28 @@ class _AddOperationDialogState extends State<AddOperationDialog> {
 
     // Create Account object
     final operation = Operation(
-        number: _numberController.text.trim(),
-        date: DateTime.now(),
-        amount: double.tryParse(_amountController.text) ?? 0.0,
-        type: _typeController.text,
-        description: _descriptionCotroller.text,
-        reunion: Reunion(
-          cause: "cause",
-          date: DateTime.now(),
-          participants: [],
-        ));
+      number: _numberController.text.trim(),
+      date: DateTime.now(),
+      amount: double.tryParse(_amountController.text) ?? 0.0,
+      type: widget.deposit ? "depot" : "retrait",
+      user: widget.user,
+      description: _descriptionCotroller.text,
+    );
 
     // Save account to Hive box
     final box = Hive.box<Operation>('operations');
     box.add(operation);
+
+    if (widget.deposit) {
+      widget.user.amount += operation.amount;
+    } else {
+      widget.user.amount -= operation.amount;
+    }
+    try {
+      widget.user.save();
+    } catch (e) {
+      print(e);
+    }
 
     Navigator.pop(context);
   }
@@ -53,7 +65,8 @@ class _AddOperationDialogState extends State<AddOperationDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Ajouter une reunion'),
+      title:
+          Text(widget.deposit ? "Effectuer le depot" : "Effectuer la retrait"),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -63,6 +76,7 @@ class _AddOperationDialogState extends State<AddOperationDialog> {
               decoration: const InputDecoration(
                 labelText: 'Numero',
               ),
+              keyboardType: TextInputType.phone,
             ),
             TextField(
               controller: _amountController,
@@ -70,12 +84,6 @@ class _AddOperationDialogState extends State<AddOperationDialog> {
                 labelText: 'Montant',
               ),
               keyboardType: TextInputType.number,
-            ),
-            TextField(
-              controller: _typeController,
-              decoration: const InputDecoration(
-                labelText: 'Type',
-              ),
             ),
             TextField(
               controller: _descriptionCotroller,
@@ -96,7 +104,7 @@ class _AddOperationDialogState extends State<AddOperationDialog> {
         ),
         ElevatedButton(
           onPressed: _addOperation,
-          child: const Text('Ajouter'),
+          child: const Text('Effectuer'),
         ),
       ],
     );

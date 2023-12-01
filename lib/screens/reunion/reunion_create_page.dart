@@ -4,6 +4,7 @@ import 'package:gestion_tontine/screens/user/user_list_page.dart';
 import 'package:hive/hive.dart';
 
 import '../../models/user/user.dart';
+import '../../shared/widgets/multiselect_users.dart';
 
 class AddReunionDialog extends StatefulWidget {
   const AddReunionDialog({super.key});
@@ -14,7 +15,7 @@ class AddReunionDialog extends StatefulWidget {
 
 class _AddReunionDialogState extends State<AddReunionDialog> {
   final _causeController = TextEditingController();
-  final List<User> _participants = [];
+  List<User> _participants = [];
 
   @override
   void dispose() {
@@ -65,11 +66,14 @@ class _AddReunionDialogState extends State<AddReunionDialog> {
                   return Text(user.firstName);
                 },
               ),
-            ElevatedButton(
-              onPressed: _selectParticipants,
-              child: const Text(
-                "Selectionner les participants",
-              ),
+            MultiSelectDropdown(
+              userList: Hive.box<User>("users").values.toList(),
+              selectedUsers: _participants,
+              onChanged: (List<User> users) {
+                setState(() {
+                  _participants = users;
+                });
+              },
             ),
             const SizedBox(height: 16.0),
           ],
